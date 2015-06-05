@@ -11,6 +11,8 @@ var Chart = (function() {
 		return $('#chart').width() - self.margins.left - self.margins.right;
 	};
 
+	self.sorted = false;
+
 	var svg = d3.select('#chart')
 		.append('svg:svg')
 		.attr({width: '100%', height: '100%'})
@@ -35,12 +37,22 @@ var Chart = (function() {
 
 	var yAxis = d3.svg.axis()
 		.scale(yScale)
-		.orient('right');
-	
+		.orient('right')
+		.tickValues([60, 51, 41, 31, 21, 11, 0]);
+
+	var tip = d3.tip()
+		.attr('class', 'tooltip')
+		.offset([-12, 0])
+		.html(function(d) {
+			return '<div>Seconds Left: ' + d.seconds_left + '</div>'
+				+ '<div>Time Stamp: ' + d.now.format("YYYY-MM-DD HH:mm:ss") + '</div>'
+				+ '<div>Clicks: ' + d.clicks + '</div>';
+		});
+
 	var zoomLvl = 0;
 	var scrollLvl = 0;
 
-	svg.selectAll("line.grid").data(yScale.ticks()).enter()
+	svg.selectAll("line.grid").data(yAxis.tickValues()).enter()
 		.append("line")
 		.attr({
 			'class': 'grid',
@@ -49,7 +61,14 @@ var Chart = (function() {
 			'y1' : yScale,
 			'y2' : yScale,
 			'shape-rendering' : 'crispEdges',
-		});
+		})
+		.attr("stroke", function (d) {
+			switch (d) {
+				case 60: return "#6ea2d5";
+				case 0: return "#6ea2d5";
+				default: return flairColor(d);
+			}
+		})
 
 	svg.append('g')
 		.attr('class', 'x axis')
@@ -72,12 +91,33 @@ var Chart = (function() {
 	svg.selectAll('g.y.axis')
 		.call(yAxis);
 
+	svg.call(tip);
+
 	// expose
 	self.svg = svg;
 	self.xScale = xScale;
 	self.yScale = yScale;
 
+
+	function sortClicksBySecondsLeft(e1, e2) {
+		return e2.seconds_left - e1.seconds_left;
+	}
+
+	function copySortedArray(arr) {
+		var s = arr.filter(function(e) {
+			return !!e.clicks && e.clicks > 0;
+		});
+
+		s.sort(sortClicksBySecondsLeft);
+		return s;
+	}
+
+
 	self.render = function(data) {
+		if (self.sorted) {
+			data = copySortedArray(data);
+		}
+
 		var clicks = _.filter(data, 'is_click');
 		Stats.resets = clicks.length;
 
@@ -117,11 +157,13 @@ var Chart = (function() {
 			.attr('height', function(d, i) {
 				return yScale(60) - yPixel(d)
 			})
-			.attr('fill', flair);
+			.attr('fill', flair)
+			.on('mouseover', tip.show)
+			.on('mouseout', tip.hide);
 
 		rect.exit()
 			.remove();
-		
+
 		//Put axis in front of bars in case they overlap
 		svg.select('.y.axis').moveToFront();
 	}
@@ -138,7 +180,7 @@ var Chart = (function() {
 		yScale.range([Chart.height(), 0]);
 
 		var grids = svg.selectAll("line.grid")
-			.data(yScale.ticks());
+			.data(yAxis.tickValues());
 
 		grids.attr({
 				'class': 'grid',
@@ -177,23 +219,23 @@ var Chart = (function() {
 	self.zoom = function(delta, pos) {
 		//Different zoom depending on level (accelerate zoom every time you zoom out by 50)
 		var v = delta * Math.floor((Stats.resets - zoomLvl)/50) + delta;
-		
+
 		zoomLvl += v;
 		if (zoomLvl < 0) { zoomLvl = 0; }
 		if (zoomLvl > Stats.resets) { zoomLvl = Stats.resets; }
-		
+
 		//Adjust scrolling to center on mouse
 		scrollLvl += pos / self.width() * v;
 		if (scrollLvl < 0) { scrollLvl = 0; }
 		if (scrollLvl > zoomLvl) { scrollLvl = zoomLvl; }
 	}
-	
+
 	self.scroll = function(dist) {
 		//Adjust scrolling speed according to domain
 		scrollLvl += dist / self.width() * (xScale.domain()[1] - xScale.domain()[0]);
 		if (scrollLvl < 0) { scrollLvl = 0; }
 		if (scrollLvl > zoomLvl) { scrollLvl = zoomLvl; }
 	}
-	
+
 	return self;
 }());

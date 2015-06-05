@@ -3,11 +3,13 @@
 	<meta name="keywords" content="thebutton, button, reddit button, redguard">
 	<meta name="description" content="Monitor the button. A simple chart for /r/thebutton">
 	<meta name="author" content="James Romeril">
-	
+
 	<meta name="apple-mobile-web-app-capable" content="yes">
 	<meta name="apple-touch-fullscreen" content="yes">
 	<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, minimum-scale=1.0, user-scalable=no">
 
+	<!-- Suppress browser request for favicon.ico -->
+	<link id="favicon" rel="shortcut icon" href="#">
 
 	<link href="//cdnjs.cloudflare.com/ajax/libs/twitter-bootstrap/3.3.4/css/bootstrap.css" rel="stylesheet">
 	<link href="style.css" rel="stylesheet">
@@ -18,25 +20,51 @@
 	<div class="container-fluid">
 		<div id="chart" class="col-md-12"></div>
 		<div id="stats">
-			<div>Started: <span id="start"></span></div>
-			<div>Time Difference: <span id="lag"></span>ms</div>
-			<div>Participants: <span id="participants"></span></div>
-			<div>Resets: <span id="resets"></span></div>
-			<div>Ticks: <span id="ticks"></span></div>
+			<div>Started: <span class="start"></span></div>
+			<div>Time Difference: <span class="lag"></span>ms</div>
+			<div>Participants: <span class="participants"></span></div>
+			<div>Clicks: <span class="clicks"></span></div>
+			<div>Resets: <span class="resets"></span></div>
+			<div>Ticks: <span class="ticks"></span></div>
+			<div>Lowest time: <span class="lowest_time"></span></div>
+			<div>Average time: <span class="average_time"></span></div>
+			<div>Median time: <span class="median_click_time"></span></div>
+			<div>Resets/min: <span class="resets_per_minute"></span></div>
+			<div>Purple clicks: <span id="purple-stats"><span class="total_purples"></span> <span class="purple_percentage"></span></span></div>
+			<div>Blue clicks: <span id="blue-stats"><span class="total_blues"></span> <span class="blue_percentage"></span></span></div>
+			<div>Green clicks: <span id="green-stats"><span class="total_greens"></span> <span class="green_percentage"></span></span></div>
+			<div>Yellow clicks: <span id="yellow-stats"><span class="total_yellows"></span> <span class="yellow_percentage"></span></span></div>
+			<div>Orange clicks: <span id="orange-stats"><span class="total_oranges"></span> <span class="orange_percentage"></span></span></div>
+			<div>Red clicks: <span id="red-stats"><span class="total_reds"></span> <span class="red_percentage"></span></span></div>
 		</div>
 		<div id="timer">
+			??.?
+		</div>
+		<div id="settings">
+			<div id="collapse-settings">
+			<!-- Settings Cog, from iconic -->
+				<svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 8 8">
+					<path d="M3.5 0l-.5 1.19c-.1.03-.19.08-.28.13l-1.19-.5-.72.72.5 1.19c-.05.1-.09.18-.13.28l-1.19.5v1l1.19.5c.04.1.08.18.13.28l-.5 1.19.72.72 1.19-.5c.09.04.18.09.28.13l.5 1.19h1l.5-1.19c.09-.04.19-.08.28-.13l1.19.5.72-.72-.5-1.19c.04-.09.09-.19.13-.28l1.19-.5v-1l-1.19-.5c-.03-.09-.08-.19-.13-.28l.5-1.19-.72-.72-1.19.5c-.09-.04-.19-.09-.28-.13l-.5-1.19h-1zm.5 2.5c.83 0 1.5.67 1.5 1.5s-.67 1.5-1.5 1.5-1.5-.67-1.5-1.5.67-1.5 1.5-1.5z"/>
+				</svg>
+			</div>
+			<div id="settings-menu">
+				<div>
+					<label> Sort by seconds: <input type="checkbox" id="sorted"></label>
+				</div>
+				<div><input type="button" value="Clear data" onclick="Settings.clear()"></div>
+			</div>
 		</div>
 		<div class="footer twitter">
-			Follow <a href="http://twitter.com/jamesrom">@jamesrom</a>
+			Follow <a href="https://twitter.com/jamesrom">@jamesrom</a>
 		</div>
 		<div class="footer email">
-			Fork on <a href="//github.com/jamesrom/jamesrom.github.io/">GitHub</a>. Thanks to <a href="//github.com/jamesrom/jamesrom.github.io/graphs/contributors">contributors</a>
+			Fork on <a href="https://github.com/jamesrom/jamesrom.github.io/">GitHub</a>. Thanks to <a href="https://github.com/jamesrom/jamesrom.github.io/graphs/contributors">contributors</a>.
 		</div>
 		<div class="footer web">
 			Visit <a href="http://jamesromeril.com/">jamesromeril.com</a>
 		</div>
 	</div>
-	
+
 	<script src="//code.jquery.com/jquery-1.11.2.min.js"></script>
 	<script src="//cdnjs.cloudflare.com/ajax/libs/d3/3.5.5/d3.min.js"></script>
 	<script src="//cdnjs.cloudflare.com/ajax/libs/lodash.js/3.6.0/lodash.min.js"></script>
@@ -44,12 +72,14 @@
 
 	<!-- Used to get valid "mousewheel" events in Firefox -->
 	<script src="jQuery_mousewheel_3_1_12.js"></script>
-	
+	<script src="d3-tip.js"></script>
+
 	<script src="app.js"></script>
 	<script src="comms.js"></script>
 	<script src="chart.js"></script>
 	<script src="timer.js"></script>
 	<script src="stats.js"></script>
+	<script src="settings.js"></script>
 	<script>
 		$(init);
 	</script>

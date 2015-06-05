@@ -1,10 +1,5 @@
 var data = [];
-var clicks = [];
-var chart, xScale, yScale, xAxis, yAxis, axisScale;
 var mouseX;
-var timerBar, animating = false;
-var sock;
-var fmt = d3.format("0,000");
 
 //Function to move components to front from D3
 d3.selection.prototype.moveToFront = function() {
@@ -37,14 +32,18 @@ function flairColor(seconds) {
 	if (seconds > 11) {
 		return '#e59500';
 	}
+	if (seconds >=0) {
+		return '#e50000';
+	}
 
-	return '#e50000';
+	return '#FFFFFF';
 }
 
 function resize() {
 	Chart.resize();
 	Stats.resize();
 	Timer.resize();
+	Settings.resize();
 	Comms.resize();
 
 	if ($(window).width() < 400) {
@@ -68,7 +67,7 @@ function mouseWheel(e) {
 function mouseDown(e) {
 	//e = window.event || e;
 	mouseX = e.pageX;
-	
+
 	//Bind scrolling functions
 	$(window).on('mousemove', mouseMove)
 			 .on('mouseup', mouseUp);
@@ -77,11 +76,11 @@ function mouseDown(e) {
 function mouseMove(e) {
 	mouseDelta = mouseX - e.pageX;
 	mouseX = e.pageX;
-	
+
 	Chart.scroll(mouseDelta);
 	Chart.render(data);
 	Timer.updateBar();
-	
+
 	e.preventDefault();
 }
 
